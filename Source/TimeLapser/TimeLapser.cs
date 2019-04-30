@@ -11,12 +11,16 @@ namespace TimeLapser
     {
         const int savedViewIndex = 1;
 
+        static System.DateTime lastPostfixTime;
+
         private static void Postfix(SaveLoader __instance, string filename, bool isAutoSave, bool updateSavePointer)
         {
-            if (!isAutoSave)
+            var currentTime = System.DateTime.UtcNow;
+            if (!isAutoSave || lastPostfixTime + TimeSpan.FromSeconds(1) > currentTime)
             {
                 return;
             }
+            lastPostfixTime = currentTime;
             Debug.Log(" === TimeLapser_SaveLoader_Save Postfix === ");
             var lastState = new GameStateRestoreInfo();
 
@@ -24,14 +28,32 @@ namespace TimeLapser
             SetupForScreenshots(presetLocation);
 
             var timer = new System.Threading.Timer(obj =>
+            {
+                try
                 {
+                    Debug.Log(" === TimeLapser Taking screenshot");
                     Utilities.PressScreenShotKey();
-                },
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(" === TimeLapser Error encountered during state restore");
+                    Debug.LogException(e);
+                }
+            },
                 null, 800, System.Threading.Timeout.Infinite);
             var timer2 = new System.Threading.Timer(obj1 =>
+            {
+                try
                 {
+                    Debug.Log(" === TimeLapser Restoring State");
                     ResetFromScreenshots(lastState);
-                },
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(" === TimeLapser Error encountered during state restore");
+                    Debug.LogException(e);
+                }
+            },
                 null, 1000, System.Threading.Timeout.Infinite);
         }
 
@@ -61,11 +83,10 @@ namespace TimeLapser
         private static Tuple<Vector3, float> GetSavedCameraLocation(int index)
         {
             var navigation = Traverse.Create(SaveGame.Instance.GetComponent<UserNavigation>());
-            const int savedViewIndex = 1;
 
             var firstReal = (navigation.Field("hotkeyNavPoints").GetValue() as IEnumerable)
                 .Cast<object>()
-                .ElementAt(savedViewIndex - 1);
+                .ElementAt(index - 1);
 
             var pointTraverse = Traverse.Create(firstReal);
             var orthoSize = pointTraverse.Field("orthoSize").GetValue<float>();
@@ -94,8 +115,11 @@ namespace TimeLapser
         {
             if (!restoreInfo.isScreenshotMode)
             {
+                Debug.Log(" === TimeLapser toggling screenshot mode");
                 DebugHandler.ToggleScreenshotMode();
             }
+            Debug.Log(String.Format(" === TimeLapser state restore: TimeScale: {0} CamPos: ({1}, {2}) OrthSize: {3}",
+                restoreInfo.timeScale, restoreInfo.position.x, restoreInfo.position.y, restoreInfo.orthoSize));
             Time.timeScale = restoreInfo.timeScale;
             CameraController instance = CameraController.Instance;
             instance.SetTargetPos(restoreInfo.position, restoreInfo.orthoSize, playSound: false);
