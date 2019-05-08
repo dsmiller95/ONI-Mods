@@ -27,7 +27,7 @@ namespace TimeLapser
             var presetLocation = GetSavedCameraLocation(savedViewIndex);
             SetupForScreenshots(presetLocation);
 
-            var timer = new System.Threading.Timer(obj =>
+            SafeDelayedAction.EnqueueAction(() =>
             {
                 try
                 {
@@ -40,10 +40,8 @@ namespace TimeLapser
                     Debug.LogError(" === TimeLapser Error encountered during state restore");
                     Debug.LogException(e);
                 }
-            },
-                null, 800, System.Threading.Timeout.Infinite);
-
-            /*var timer2 = new System.Threading.Timer(obj1 =>
+            }, 800);
+            SafeDelayedAction.EnqueueAction(() =>
             {
                 try
                 {
@@ -55,8 +53,7 @@ namespace TimeLapser
                     Debug.LogError(" === TimeLapser Error encountered during state restore");
                     Debug.LogException(e);
                 }
-            },
-                null, 1000, System.Threading.Timeout.Infinite);*/
+            }, 1000);
         }
 
 

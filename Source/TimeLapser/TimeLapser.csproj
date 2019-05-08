@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InputBlockerPatch.cs" />
+    <Compile Include="SafeDelayedAction.cs" />
     <Compile Include="ScreenCapture.cs" />
     <Compile Include="TimeLapser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
