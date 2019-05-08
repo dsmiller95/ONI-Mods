@@ -37,14 +37,18 @@ namespace TimeLapser
             if(actionQueue.Count > 0)
             {
                 PerformSafeAction nextAction;
-                do
+                while (true)
                 {
                     lock (actionQueue)
                     {
+                        if(actionQueue.Count == 0)
+                        {
+                            break;
+                        }
                         nextAction = actionQueue.Dequeue();
                     }
                     nextAction();
-                } while (nextAction != null);
+                } 
             }
         }
     }
