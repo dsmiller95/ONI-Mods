@@ -32,7 +32,8 @@ namespace TimeLapser
                 try
                 {
                     Debug.Log(" === TimeLapser Taking screenshot");
-                    Utilities.PressScreenShotKey();
+                    //Utilities.PressScreenShotKey();
+                    ScreenCapture.TakeScreenshot();
                 }
                 catch (Exception e)
                 {
@@ -41,7 +42,8 @@ namespace TimeLapser
                 }
             },
                 null, 800, System.Threading.Timeout.Infinite);
-            var timer2 = new System.Threading.Timer(obj1 =>
+
+            /*var timer2 = new System.Threading.Timer(obj1 =>
             {
                 try
                 {
@@ -54,7 +56,7 @@ namespace TimeLapser
                     Debug.LogException(e);
                 }
             },
-                null, 1000, System.Threading.Timeout.Infinite);
+                null, 1000, System.Threading.Timeout.Infinite);*/
         }
 
 
